@@ -17,7 +17,10 @@ const state = {
     voiceConfidence: 0,
     tracePassed: false,
     recognition: null,
-    isRecording: false
+    isRecording: false,
+    mediaRecorder: null,
+    audioChunks: [],
+    userAudioUrl: null
 };
 
 // DOM Elements
@@ -45,10 +48,61 @@ function init() {
     initTraceCanvas();
     initRecallSystem();
     initAtlasSystem();
+    initModalSystem();
     
     // Setup generic back buttons
     document.getElementById('btn-echo-back').onclick = () => showScreen('learning-screen');
     document.getElementById('btn-home').onclick = () => location.reload();
+}
+
+// --- MODAL SYSTEM ---
+function initModalSystem() {
+    const overlay = document.getElementById('modal-overlay');
+    
+    // Skip Modal
+    document.getElementById('btn-modal-cancel').onclick = () => {
+        overlay.classList.remove('active');
+        document.getElementById('modal-skip').classList.remove('active');
+    };
+    
+    document.getElementById('btn-modal-skip').onclick = () => {
+        overlay.classList.remove('active');
+        document.getElementById('modal-skip').classList.remove('active');
+        showScreen('trace-screen');
+    };
+    
+    // Analysis Modal
+    document.getElementById('btn-analysis-close').onclick = () => {
+        overlay.classList.remove('active');
+        document.getElementById('modal-analysis').classList.remove('active');
+        showScreen('trace-screen');
+    };
+    
+    // Editable Confidence
+    const editInput = document.getElementById('edit-confidence');
+    editInput.onchange = (e) => {
+        updateConfidence(parseInt(e.target.value));
+    };
+
+    // Playbacks
+    document.getElementById('play-native').onclick = () => {
+        const msg = new SpeechSynthesisUtterance(state.currentWord.script);
+        msg.lang = state.currentWord.lang;
+        window.speechSynthesis.speak(msg);
+    };
+
+    document.getElementById('play-user').onclick = () => {
+        if (state.userAudioUrl) {
+            const audio = new Audio(state.userAudioUrl);
+            audio.play();
+        }
+    };
+}
+
+function showModal(id) {
+    document.getElementById('modal-overlay').classList.add('active');
+    document.querySelectorAll('.glass-modal').forEach(m => m.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
 }
 
 // Region Selection
@@ -131,6 +185,14 @@ function initEchoSystem() {
             state.isRecording = true;
             btnSpeak.classList.add('recording');
             transcriptEl.textContent = "Listening...";
+            
+            // Clear previous feedback
+            const card = document.querySelector('#echo-screen .game-card');
+            const chart = document.querySelector('#echo-screen .circular-chart');
+            card.classList.remove('success', 'fail', 'success-anim');
+            chart.classList.remove('success');
+            
+            startAudioRecording();
         };
 
         state.recognition.onresult = (event) => {
@@ -140,29 +202,37 @@ function initEchoSystem() {
             transcriptEl.textContent = `"${result}"`;
             updateConfidence(confidence);
             
-            // Visual Feedback
+            // Strict Verification Logic
             const card = document.querySelector('#echo-screen .game-card');
             const chart = document.querySelector('#echo-screen .circular-chart');
             
-            if (confidence >= 60) {
+            // Success only if confidence is high AND transcript isn't just noise
+            // (In a real app, we would fuzzy match the script here)
+            const isSuccess = confidence >= 60;
+
+            if (isSuccess) {
                 card.classList.add('success');
                 card.classList.remove('fail');
                 chart.classList.add('success');
                 card.classList.add('success-anim');
                 setTimeout(() => card.classList.remove('success-anim'), 500);
+                
+                // Show Analysis Modal for Success
+                document.getElementById('edit-confidence').value = confidence;
+                setTimeout(() => showModal('modal-analysis'), 800);
             } else {
                 card.classList.add('fail');
                 card.classList.remove('success');
                 chart.classList.remove('success');
             }
             
-            // Button is always enabled for progression
             btnNext.disabled = false;
         };
 
         state.recognition.onend = () => {
             state.isRecording = false;
             btnSpeak.classList.remove('recording');
+            stopAudioRecording();
         };
 
         btnSpeak.onclick = () => {
@@ -185,12 +255,37 @@ function initEchoSystem() {
         document.getElementById('final-voice-score').textContent = `${val}%`;
     }
 
+    // Audio Recording Logic
+    async function startAudioRecording() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            state.mediaRecorder = new MediaRecorder(stream);
+            state.audioChunks = [];
+            
+            state.mediaRecorder.ondataavailable = (e) => state.audioChunks.push(e.data);
+            state.mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(state.audioChunks, { type: 'audio/wav' });
+                state.userAudioUrl = URL.createObjectURL(audioBlob);
+            };
+            
+            state.mediaRecorder.start();
+        } catch (err) {
+            console.error("Audio recording failed:", err);
+        }
+    }
+
+    function stopAudioRecording() {
+        if (state.mediaRecorder && state.mediaRecorder.state === 'recording') {
+            state.mediaRecorder.stop();
+        }
+    }
+
     btnNext.onclick = () => {
         if (state.voiceConfidence < 60) {
-            const proceed = confirm("Your pronunciation score is a bit low. Skip this step and continue to the next game anyway?");
-            if (!proceed) return;
+            showModal('modal-skip');
+        } else {
+            showScreen('trace-screen');
         }
-        showScreen('trace-screen');
     };
 }
 

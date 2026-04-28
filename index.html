@@ -204,6 +204,50 @@
             </section>
         </main>
 
+        <!-- Modals Layer -->
+        <div id="modal-overlay" class="modal-overlay">
+            <!-- Skip Confirmation Modal -->
+            <div id="modal-skip" class="glass-modal">
+                <h3>Not quite there yet?</h3>
+                <p>Your pronunciation didn't hit the pass mark. You can keep practicing or skip to the next game.</p>
+                <div class="modal-actions">
+                    <button id="btn-modal-cancel" class="action-btn secondary">Keep Trying</button>
+                    <button id="btn-modal-skip" class="action-btn primary">Skip Anyway</button>
+                </div>
+            </div>
+
+            <!-- Analysis / Success Modal -->
+            <div id="modal-analysis" class="glass-modal">
+                <div class="success-icon"><i class="fa-solid fa-circle-check"></i></div>
+                <h3>Analysis Complete</h3>
+                
+                <div class="analysis-grid">
+                    <div class="score-edit">
+                        <label>Confidence Score</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="edit-confidence" min="0" max="100">
+                            <span>%</span>
+                        </div>
+                    </div>
+
+                    <div class="audio-comparison">
+                        <div class="audio-col">
+                            <span>Native</span>
+                            <button id="play-native" class="play-small"><i class="fa-solid fa-play"></i></button>
+                        </div>
+                        <div class="audio-col">
+                            <span>Your Voice</span>
+                            <button id="play-user" class="play-small"><i class="fa-solid fa-play"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button id="btn-analysis-close" class="action-btn primary">Continue</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Progress Bar -->
         <div class="app-progress">
             <div id="main-progress-bar" class="progress-fill" style="width: 20%;"></div>
