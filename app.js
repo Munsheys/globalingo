@@ -1,12 +1,12 @@
 // GlobaLingo - Core Application Logic
 
 const WORDS_DATABASE = [
-    { country: 'Japan', flag: '🇯🇵', script: '木漏れ日', ipa: '/ko.mo.re.bi/', definition: 'Sunlight filtering through trees.', options: ['Sunlight through trees', 'Early morning mist', 'Moonlight on water'] },
-    { country: 'France', flag: '🇫🇷', script: 'Dépaysement', ipa: '/de.pe.iz.mɑ̃/', definition: 'The feeling of being in a foreign country.', options: ['Feeling of being abroad', 'A sudden realization', 'Losing one\'s path'] },
-    { country: 'Egypt', flag: '🇪🇬', script: 'يا عيني', ipa: '/ya ʕeːni/', definition: 'Oh my eyes (expression of empathy or joy).', options: ['Expression of empathy', 'Looking at the stars', 'A cold desert night'] },
-    { country: 'Mexico', flag: '🇲🇽', script: 'Sobremesa', ipa: '/so.βɾe.ˈme.sa/', definition: 'Conversation after a meal.', options: ['Conversation after a meal', 'A nap in the sun', 'Setting the table'] },
-    { country: 'Germany', flag: '🇩🇪', script: 'Fernweh', ipa: '/ˈfɛʁnˌveː/', definition: 'A longing for far-off places.', options: ['Longing for far places', 'Fear of the dark', 'Missing home'] },
-    { country: 'Italy', flag: '🇮🇹', script: 'Abbiocco', ipa: '/ab.bjok.ko/', definition: 'The drowsiness after eating.', options: ['Drowsiness after eating', 'Morning sunlight', 'Walking slowly'] }
+    { country: 'Japan', lang: 'ja-JP', flag: '🇯🇵', script: '木漏れ日', ipa: '/ko.mo.re.bi/', definition: 'Sunlight filtering through trees.', options: ['Sunlight through trees', 'Early morning mist', 'Moonlight on water'] },
+    { country: 'France', lang: 'fr-FR', flag: '🇫🇷', script: 'Dépaysement', ipa: '/de.pe.iz.mɑ̃/', definition: 'The feeling of being in a foreign country.', options: ['Feeling of being abroad', 'A sudden realization', 'Losing one\'s path'] },
+    { country: 'Egypt', lang: 'ar-EG', flag: '🇪🇬', script: 'يا عيني', ipa: '/ya ʕeːni/', definition: 'Oh my eyes (expression of empathy or joy).', options: ['Expression of empathy', 'Looking at the stars', 'A cold desert night'] },
+    { country: 'Mexico', lang: 'es-MX', flag: '🇲🇽', script: 'Sobremesa', ipa: '/so.βɾe.ˈme.sa/', definition: 'Conversation after a meal.', options: ['Conversation after a meal', 'A nap in the sun', 'Setting the table'] },
+    { country: 'Germany', lang: 'de-DE', flag: '🇩🇪', script: 'Fernweh', ipa: '/ˈfɛʁnˌveː/', definition: 'A longing for far-off places.', options: ['Longing for far places', 'Fear of the dark', 'Missing home'] },
+    { country: 'Italy', lang: 'it-IT', flag: '🇮🇹', script: 'Abbiocco', ipa: '/ab.bjok.ko/', definition: 'The drowsiness after eating.', options: ['Drowsiness after eating', 'Morning sunlight', 'Walking slowly'] }
 ];
 
 const state = {
@@ -91,10 +91,28 @@ function initEchoSystem() {
     const confidenceProgress = document.getElementById('confidence-progress');
     const btnNext = document.getElementById('btn-echo-next');
 
+    // Warm up the speech engine
+    let enginePrimed = false;
+    const primeEngine = () => {
+        if (enginePrimed) return;
+        const msg = new SpeechSynthesisUtterance('');
+        msg.volume = 0;
+        window.speechSynthesis.speak(msg);
+        enginePrimed = true;
+    };
+
     // Text to Speech
     btnPlay.onclick = () => {
+        primeEngine();
+        window.speechSynthesis.cancel(); // Stop any current speech
         const msg = new SpeechSynthesisUtterance(state.currentWord.script);
-        // Try to match language if possible
+        msg.lang = state.currentWord.lang;
+        
+        // Find best voice for language
+        const voices = window.speechSynthesis.getVoices();
+        const bestVoice = voices.find(v => v.lang.startsWith(state.currentWord.lang.split('-')[0])) || voices[0];
+        if (bestVoice) msg.voice = bestVoice;
+        
         window.speechSynthesis.speak(msg);
     };
 
@@ -290,7 +308,14 @@ function renderAtlas() {
         `;
         div.onclick = () => {
             // Re-play audio on tap
+            window.speechSynthesis.cancel();
             const msg = new SpeechSynthesisUtterance(item.script);
+            msg.lang = item.lang;
+            
+            const voices = window.speechSynthesis.getVoices();
+            const bestVoice = voices.find(v => v.lang.startsWith(item.lang.split('-')[0])) || voices[0];
+            if (bestVoice) msg.voice = bestVoice;
+            
             window.speechSynthesis.speak(msg);
         };
         list.appendChild(div);
