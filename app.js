@@ -140,9 +140,24 @@ function initEchoSystem() {
             transcriptEl.textContent = `"${result}"`;
             updateConfidence(confidence);
             
-            if (confidence > 40) {
-                btnNext.disabled = false;
+            // Visual Feedback
+            const card = document.querySelector('#echo-screen .game-card');
+            const chart = document.querySelector('#echo-screen .circular-chart');
+            
+            if (confidence >= 60) {
+                card.classList.add('success');
+                card.classList.remove('fail');
+                chart.classList.add('success');
+                card.classList.add('success-anim');
+                setTimeout(() => card.classList.remove('success-anim'), 500);
+            } else {
+                card.classList.add('fail');
+                card.classList.remove('success');
+                chart.classList.remove('success');
             }
+            
+            // Button is always enabled for progression
+            btnNext.disabled = false;
         };
 
         state.recognition.onend = () => {
@@ -170,7 +185,13 @@ function initEchoSystem() {
         document.getElementById('final-voice-score').textContent = `${val}%`;
     }
 
-    btnNext.onclick = () => showScreen('trace-screen');
+    btnNext.onclick = () => {
+        if (state.voiceConfidence < 60) {
+            const proceed = confirm("Your pronunciation score is a bit low. Skip this step and continue to the next game anyway?");
+            if (!proceed) return;
+        }
+        showScreen('trace-screen');
+    };
 }
 
 // --- TRACE SYSTEM (Canvas Drawing) ---
