@@ -25,6 +25,9 @@
                     <i class="fa-solid fa-fire"></i>
                     <span id="streak-count">0</span>
                 </div>
+                <button id="btn-open-atlas" class="icon-btn atlas-btn">
+                    <i class="fa-solid fa-book-atlas"></i>
+                </button>
             </div>
         </header>
 
@@ -178,6 +181,23 @@
                             <i class="fa-solid fa-share-nodes"></i> Share Progress
                         </button>
                         <button id="btn-home" class="action-btn primary">See you tomorrow</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen 7: Atlas Collection -->
+            <section id="atlas-screen" class="screen">
+                <div class="glass-card atlas-card">
+                    <div class="atlas-header">
+                        <h2>Your Atlas</h2>
+                        <button id="btn-atlas-close" class="close-btn">&times;</button>
+                    </div>
+                    <div id="atlas-list" class="atlas-grid">
+                        <!-- History items injected here -->
+                    </div>
+                    <div id="atlas-empty" class="empty-state">
+                        <i class="fa-solid fa-map-location-dot"></i>
+                        <p>No words mastered yet. Start your journey!</p>
                     </div>
                 </div>
             </section>

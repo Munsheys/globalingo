@@ -493,3 +493,104 @@ canvas {
     font-weight: 700;
     color: var(--accent);
 }
+
+/* Atlas Screen Styles */
+.atlas-btn {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    color: white;
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.atlas-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.atlas-card {
+    justify-content: flex-start !important;
+    padding: 20px;
+    max-height: 80%;
+}
+
+.atlas-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+}
+
+.atlas-header h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.5rem;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 2rem;
+    cursor: pointer;
+}
+
+.atlas-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.atlas-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 15px;
+    text-align: left;
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.atlas-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent);
+}
+
+.atlas-item .word {
+    font-size: 1.2rem;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.atlas-item .country {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+}
+
+.empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dim);
+    gap: 15px;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    opacity: 0.2;
+}
+
+.icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

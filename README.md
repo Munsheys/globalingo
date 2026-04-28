@@ -9,6 +9,7 @@ GlobaLingo is a gamified language learning experience that blends the daily habi
 ## ✨ Features
 
 - **🗺️ Global Word Discovery**: Select a country or go random to discover a unique daily word with its definition and etymology.
+- **📚 Your Atlas (NEW)**: A persistent collection of every word you've mastered. Tap any word to revisit its pronunciation and meaning.
 - **🎙️ Echo Check (Voice Feedback)**: Practice your pronunciation with real-time feedback using the Web Speech API. Includes a confidence gauge to track your accuracy.
 - **✍️ Stroke Master (Calligraphy)**: A character-tracing mini-game that allows you to manually draw scripts (like Japanese Kanji or Arabic) directly on a digital canvas.
 - **🧩 Definition Duel**: Reinforce your memory with rapid-fire definition matching games.

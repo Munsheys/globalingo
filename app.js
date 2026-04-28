@@ -13,6 +13,7 @@ const state = {
     currentWord: null,
     currentScreen: 'selection-screen',
     streak: parseInt(localStorage.getItem('globalingo-streak') || '0'),
+    history: JSON.parse(localStorage.getItem('globalingo-history') || '[]'),
     voiceConfidence: 0,
     tracePassed: false,
     recognition: null,
@@ -43,6 +44,7 @@ function init() {
     initEchoSystem();
     initTraceCanvas();
     initRecallSystem();
+    initAtlasSystem();
     
     // Setup generic back buttons
     document.getElementById('btn-echo-back').onclick = () => showScreen('learning-screen');
@@ -228,6 +230,7 @@ function renderQuiz() {
                 btn.classList.add('correct');
                 state.streak++;
                 localStorage.setItem('globalingo-streak', state.streak);
+                saveToAtlas();
                 setTimeout(() => showScreen('results-screen'), 1000);
             } else {
                 btn.classList.add('wrong');
@@ -237,6 +240,60 @@ function renderQuiz() {
             }
         };
         optionsContainer.appendChild(btn);
+    });
+}
+
+// --- ATLAS SYSTEM (History & Persistence) ---
+function initAtlasSystem() {
+    const btnOpen = document.getElementById('btn-open-atlas');
+    const btnClose = document.getElementById('btn-atlas-close');
+    
+    btnOpen.onclick = () => {
+        renderAtlas();
+        showScreen('atlas-screen');
+    };
+    
+    btnClose.onclick = () => {
+        showScreen('selection-screen');
+    };
+}
+
+function saveToAtlas() {
+    // Don't add duplicates
+    if (!state.history.find(w => w.script === state.currentWord.script)) {
+        state.history.unshift({
+            ...state.currentWord,
+            timestamp: new Date().toISOString(),
+            confidence: state.voiceConfidence
+        });
+        localStorage.setItem('globalingo-history', JSON.stringify(state.history));
+    }
+}
+
+function renderAtlas() {
+    const list = document.getElementById('atlas-list');
+    const empty = document.getElementById('atlas-empty');
+    list.innerHTML = '';
+    
+    if (state.history.length === 0) {
+        empty.style.display = 'flex';
+        return;
+    }
+    
+    empty.style.display = 'none';
+    state.history.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'atlas-item';
+        div.innerHTML = `
+            <span class="word">${item.script}</span>
+            <span class="country">${item.flag} ${item.country}</span>
+        `;
+        div.onclick = () => {
+            // Re-play audio on tap
+            const msg = new SpeechSynthesisUtterance(item.script);
+            window.speechSynthesis.speak(msg);
+        };
+        list.appendChild(div);
     });
 }
 
