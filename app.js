@@ -59,7 +59,9 @@ function initRegionButtons() {
             if (region === 'random') {
                 state.currentWord = WORDS_DATABASE[Math.floor(Math.random() * WORDS_DATABASE.length)];
             } else {
-                state.currentWord = WORDS_DATABASE.find(w => w.country.toLowerCase().includes(btn.innerText.toLowerCase())) || WORDS_DATABASE[0];
+                // Find by country name (case insensitive)
+                const country = btn.querySelector('span:last-child').innerText.toLowerCase();
+                state.currentWord = WORDS_DATABASE.find(w => w.country.toLowerCase() === country) || WORDS_DATABASE[0];
             }
             loadWordData();
             showScreen('learning-screen');
@@ -75,6 +77,9 @@ function loadWordData() {
     document.getElementById('display-word').textContent = state.currentWord.script;
     document.getElementById('word-ipa').textContent = state.currentWord.ipa;
     document.getElementById('word-definition').textContent = state.currentWord.definition;
+    
+    // Update Echo screen display
+    document.getElementById('echo-display-word').textContent = state.currentWord.script;
     
     // Update result screen values
     document.getElementById('result-word').textContent = state.currentWord.script;
@@ -146,8 +151,13 @@ function initEchoSystem() {
         };
 
         btnSpeak.onclick = () => {
-            if (state.isRecording) state.recognition.stop();
-            else state.recognition.start();
+            if (state.isRecording) {
+                state.recognition.stop();
+            } else {
+                // Set language dynamically before starting
+                state.recognition.lang = state.currentWord.lang;
+                state.recognition.start();
+            }
         };
     } else {
         transcriptEl.textContent = "Speech recognition not supported in this browser.";

@@ -223,6 +223,13 @@ p {
     -webkit-text-fill-color: transparent;
 }
 
+.native-script-mini {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--accent);
+}
+
 .ipa {
     font-family: 'Inter', sans-serif;
     color: var(--text-dim);
